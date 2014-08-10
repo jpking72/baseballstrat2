@@ -10,19 +10,21 @@ app.get('/', function (req, res) {
 
 });
 
-app.get('/js/ang.js', function (req, res) {
+app.get('/js/core.js', function (req, res) {
 
-    res.sendfile(__dirname + '/js/ang.js');
+    res.sendfile(__dirname + '/js/core.js');
 
 });
 
 io.sockets.on('connection', function (socket) {
 
-    socket.emit('new:msg', 'Welcome to Mars');
+    socket.emit('news', 'Welcome to Baseball Strategy II');
 
-    socket.on('broadcast:msg', function (data) {
+    socket.on('broadcast', function (data) {
 
-        socket.broadcast.emit('new:msg', data.message);
+    	console.log(data)
+
+        socket.emit('news', data.mydata);
 
     })
 })
