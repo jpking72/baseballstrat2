@@ -16,13 +16,13 @@ $(document).ready( function () {
 
   	function SocketGameOut(outstring) {
 		
-		socket.emit('clientData', { mydata: outstring });
+		socket.emit('clientData', outstring );
   	
 	}
 
 	function SocketBroadcastOut(message) {
 
-		socket.emit('broadcast', { mydata: message });
+		socket.emit('broadcast', message);
 
 	}
 
@@ -36,6 +36,16 @@ $(document).ready( function () {
 
 		
 	}
+
+	$("#startGame").click( function () {
+		SocketGameOut("newgame--start|1")
+	})
+
+	$(".gameSelect").click( function () {
+		gameid = $(this).data("game");
+		SocketGameOut("joingame--id|" + gameid);
+
+	})
 
 
 

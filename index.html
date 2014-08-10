@@ -7,20 +7,6 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/core.js"></script>
-	<script type="text/javascript">
-
-		$(document).ready(function () {
-
-			$("#startGame").click( function () {
-				SocketGameOut("newgame--start|1")
-			})
-
-			function JoinGame(gameid) {
-				SocketGameOut("joingame--id|" + gameid);
-			}
-
-		})
-	</script>
 </head>
 <body>
 	<h1>Baseball Strategy II</h1>
@@ -30,12 +16,9 @@
 	</ul>
 	<p><button id="startGame" value="Start Game"></button></p>
 	<p>
-
-		<a href="#" onclick="javascript:JoinGame(1)">Game 1 vs. Mariners</a><br/>
-		<a href="#" onclick="javascript:JoinGame(2)">Game 2 vs. Angels</a><br/>
-		<a href="#" onclick="javascript:JoinGame(3)">Game 3 vs. Pirates</a><br/>
-
+		<a href="#" class="gameSelect" data-game="1">Game 1 vs. Mariners</a><br/>
+		<a href="#" class="gameSelect" ddata-game="2">Game 2 vs. Angels</a><br/>
+		<a href="#" class="gameSelect" ddata-game="3">Game 3 vs. Pirates</a><br/>
 	</p>
-
 </body>
 </html>

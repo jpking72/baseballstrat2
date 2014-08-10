@@ -18,49 +18,53 @@ app.get('/js/core.js', function (req, res) {
 
 var gameIDIndex = 0;
 var arrSockets = [];
+var arrGames = [];
 var newgame;
 var newsock;
 
 io.sockets.on('connection', function (socket) {
 
-	newsock = new UserSocket();
-	newsock.sock = socket;
+	newsock = new UserSocket(socket);
+
 	newsock.game = null;
 	newsock.host = null;
 	newsock.opponent = null;
 	newsock.room = "";
 
-	newsock.Output('news', 'Welcome to Baseball Strategy II');
+	newsock.SendToHostSocket('Welcome to Baseball Strategy II');
 
 	arrSockets.push(socket);
 
 });
 
-CompleteGame = function ()
-
 function Game() {
 
 	this.gameID = ++gameIDIndex;
-	this.complete = false;
+	this.joined = false;
+	this.active = false;
 
 }
 
-function UserSocket() {
+function UserSocket(sock) {
 
-	this.sock.on('clientData', function (data)) {
+	o = this;
 
-		this.ParseClientData;
+	o.sock = sock;
 
-	};
+	o.sock.on('clientData', function (data) {
 
-	this.sock.on('broadcast', function (data)) {
+		o.ParseClientData(data);
 
-		this.BroadcastToGame;
+	});
 
-	};
+	o.sock.on('broadcast', function (data) {
+
+		o.BroadcastToGame(data);
+
+	});
 
 
-	this.ParseClientData = function (data) {
+	o.ParseClientData = function (data) {
 
 		var arrData = data.split("--");
 		var command = arrData[0];
@@ -72,61 +76,126 @@ function UserSocket() {
 		for (i = 0; i < dataValues.length; i++) {
 
 			var kvpair = dataValues[i].split("|");
-			aGameData.kvpair[0] = kvpair[1];
+
+			console.log(kvpair);
+
+			key = kvpair[0];
+
+			aGameData[key] = kvpair[1];
 
 		}
 
-		this.PerformAction(command, aGameData);
+		console.log('game data')
+		console.log(aGameData);
+
+		o.PerformAction(command, aGameData);
 
 	}
 
 
 	this.PerformAction = function (command, aGameData) {
 
+		console.log('game data 2')
+		console.log(aGameData);
+
 		switch (command) {
 
 			case "newgame":
-				this.CreateGame(aGameData);
+				o.CreateGame(aGameData);
 				break;
 			case "joingame":
-				this.JoinGame(aGameData);
+				o.JoinGame(aGameData);
 				break;
 
 		}
 
 	}
 
-	this.CreateGame = function (startdata) {
+	o.CreateGame = function (startdata) {
 
-		this.game = new Game();
-		this.game.host = this.sock;
+		newgame = new Game();
+		newgame.host = o.sock;
+		o.game = newgame;
+		arrGames.push(newgame);
 
 	} 
 
-	this.JoinGame = function (joindata) {
+	o.JoinGame = function (joindata) {
 
 		gameid = joindata.id;
 
-		
+		console.log(arrGames);
 
+		if ((matchedGame = o.FindGameByID(gameid)) != false) {
 
-	}
+			if (matchedGame.complete) {
 
-	this.BroadcastToGame = function(data) {
+				o.SendToHostSocket("game already matched")
+				return false;
 
-		if (this.game > 0) {
+			}
 
-			this.sock.broadcast.emit(data);
+			o.game = matchedGame;
+
+			matchedGame.remote = o.sock;
+			mathcedGame.complete = true;
+			matchedGame.active = true;
+			matchedGame.room = "game" + matchedGame.gameID;
+
+			matchedGame.host.join(o.room);
+			matchedGame.remote.join(o.room);
+
+			o.BroadCastToGame('Game ready to start');
+			return true;
+
+		} else {
+
+			o.SendToHostSocket("invalid game")
+			return false;
 
 		}
 
 	}
 
-	this.Output = function(data) {
+	o.FindGameByID = function (gameid) {
 
-		this.sock.broadcast.emit(data);
+		console.log(gameid);
+
+		for (i = 1; i < arrGames.length; i++) {
+
+			if (arrGames[i].gameID == gameid) {
+
+				return arrGames[i];
+
+			}
+		}
+
+		return false;
 
 	}
+
+	o.BroadcastToGame = function(data) {
+
+		if (o.game > 0) {
+
+			io.sockets.in(o.game.room).emit('news', data); 
+
+		}
+
+	}
+
+	o.SendToHostSocket = function(data) {
+
+		o.sock.emit('news', data);
+
+	}
+
+	o.SendToRemoteSocket = function(data) {
+
+		o.game.remote.emit('news', data);
+
+	}
+
 }
 
 
