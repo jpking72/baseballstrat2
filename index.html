@@ -7,11 +7,31 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/core.js"></script>
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			function SendGame(gameID) {
+
+				out = "newgame" + | + gameID;
+				SocketGameOut(out);
+
+			}
+		})
+	</script>
 </head>
 <body>
+	<h1>Baseball Strategy II</h1>
 	<input type="text" name="message" id="message">
 	<button id="broadcast">Broadcast</button>
 	<ul id="messages">
 	</ul>
+	<h3>Play a Game</h3>
+		<ul>
+			<li><a href="#" onclick="javascript:SendGame(1); return false">Astros at Angels</a>
+			<li><a href="#" onclick="javascript:SendGame(2); return false">Astros at Angels</a>
+			<li><a href="#" onclick="javascript:SendGame(3); return false">Astros at Angels</a>
+			<li><a href="#" onclick="javascript:SendGame(0); return false">Exhibition Game</a>
+		</ul>
 </body>
 </html>

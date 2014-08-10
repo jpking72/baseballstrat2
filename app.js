@@ -16,15 +16,31 @@ app.get('/js/core.js', function (req, res) {
 
 });
 
+var arrSockets = [];
+
 io.sockets.on('connection', function (socket) {
 
-    socket.emit('news', 'Welcome to Baseball Strategy II');
+	socket.emit('news', "Welcome to Baseball Strategy II");
 
-    socket.on('broadcast', function (data) {
+	socket.on('clientData', function (data) {
 
-    	console.log(data)
+		ParseClientData(data);
 
-        socket.emit('news', data.mydata);
+	});
 
-    })
-})
+	arrSockets.push(socket);
+
+});
+
+function ParseClientData(data) {
+
+	var arrData = data.split("||");
+
+	for (i = 0; i < arrData.length; i++) {
+
+		
+	}
+}
+
+
+
