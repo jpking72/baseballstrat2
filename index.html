@@ -14,11 +14,13 @@
 	<button id="broadcast">Broadcast</button>
 	<ul id="messages">
 	</ul>
-	<p><button id="startGame" value="Start Game"></button></p>
+	<form id="gameForm">
+	<p><button id="hostGame">Host Game</button> <button id="joinGame">Join Game</button></p>
 	<p>
-		<a href="#" class="gameSelect" data-game="1">Game 1 vs. Mariners</a><br/>
-		<a href="#" class="gameSelect" ddata-game="2">Game 2 vs. Angels</a><br/>
-		<a href="#" class="gameSelect" ddata-game="3">Game 3 vs. Pirates</a><br/>
+		<input type="radio" name="gameSelect" value="1"> Athletics vs. Mariners<br/>
+		<input type="radio" name="gameSelect" value="2"> Pirates vs. Brewers<br/>
+		<input type="radio" name="gameSelect" value="3"> Tigers vs. Yankees<br/>
 	</p>
+	</form>
 </body>
 </html>

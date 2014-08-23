@@ -1,3 +1,5 @@
+module.exports =  Baseball;
+
 function Baseball() {
 
 	this.inning = 1;
@@ -10,6 +12,22 @@ function Baseball() {
 	this.team =  [new Array(25), new Array(25)];
 	this.bases = [0,0,0,0];
 	infield = 0;
+
+}
+
+Baseball.prototype.GetGameData = function () {
+
+	aGameData = { 
+
+			inning : this.inning, 
+			side : this.side,
+			outs : this.outs,
+			score : this.score
+	}
+
+	gamedata = JSON.stringify(aGameData);
+
+	return gamedata;
 
 }
 

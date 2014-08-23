@@ -2,6 +2,8 @@ var app = require('express')()
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server);
 
+var baseball = require('./baseball');
+
 server.listen(3333);
 
 app.get('/', function (req, res) {
@@ -37,11 +39,12 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-function Game() {
+function Game(gameid) {
 
-	this.gameID = ++gameIDIndex;
+	this.gameID = gameid;
 	this.joined = false;
 	this.active = false;
+	this.baseball = false;
 
 }
 
@@ -50,6 +53,7 @@ function UserSocket(sock) {
 	o = this;
 
 	o.sock = sock;
+	o.game = false;
 
 	o.sock.on('clientData', function (data) {
 
@@ -66,57 +70,53 @@ function UserSocket(sock) {
 
 	o.ParseClientData = function (data) {
 
-		var arrData = data.split("--");
-		var command = arrData[0];
-		var data = arrData[1];
-		var dataValues = data.split(",");
+		var oData = JSON.parse(data);
 
-		var aGameData = {};
+		console.log(oData);
 
-		for (i = 0; i < dataValues.length; i++) {
-
-			var kvpair = dataValues[i].split("|");
-
-			console.log(kvpair);
-
-			key = kvpair[0];
-
-			aGameData[key] = kvpair[1];
-
-		}
-
-		console.log('game data')
-		console.log(aGameData);
-
-		o.PerformAction(command, aGameData);
+		o.PerformAction(oData.command, oData.senddata);
 
 	}
 
 
-	this.PerformAction = function (command, aGameData) {
-
-		console.log('game data 2')
-		console.log(aGameData);
+	o.PerformAction = function (command, aGameData) {
 
 		switch (command) {
 
 			case "newgame":
-				o.CreateGame(aGameData);
+				o.CreateGame(aGameData.gameid);
 				break;
 			case "joingame":
-				o.JoinGame(aGameData);
+				o.JoinGame(aGameData.gameid);
 				break;
 
 		}
 
 	}
 
-	o.CreateGame = function (startdata) {
+	o.CreateGame = function (hostdata) {
 
-		newgame = new Game();
+		console.log('in create game');
+		console.log(typeof o.game);
+
+		if (o.game) {
+
+			console.log('game already started');
+			return false;
+		}
+
+		newgame = new Game(hostdata);
+
+		console.log("game object created");
+		console.log(newgame.gameID);
+
 		newgame.host = o.sock;
 		o.game = newgame;
+
+		console.log(o.game.gameID);
 		arrGames.push(newgame);
+
+		o.SendToHostSocket("Hosting game: " + newgame.gameID );
 
 	} 
 
@@ -144,6 +144,8 @@ function UserSocket(sock) {
 
 			matchedGame.host.join(o.room);
 			matchedGame.remote.join(o.room);
+
+			matchedGame.baseball = new Baseball();
 
 			o.BroadCastToGame('Game ready to start');
 			return true;

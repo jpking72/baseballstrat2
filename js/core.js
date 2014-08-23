@@ -37,16 +37,23 @@ $(document).ready( function () {
 		
 	}
 
-	$("#startGame").click( function () {
-		SocketGameOut("newgame--start|1")
+	$("#hostGame").click( function () {
+
+		var gamenum = $('input[name=gameSelect]:checked', '#gameForm').val();
+
+		aSendData = { command : "newgame" , senddata : { gameid : gamenum } };
+		senddata = JSON.stringify(aSendData);
+		SocketGameOut(senddata);
+
+	});
+
+	$("#joinGame").click( function () {
+
+		aSendData = { command : "joingame" , senddata : { gameid : gamenum } };
+		senddata = JSON.stringify(aSendData);
+		SocketGameOut(senddata);
+
 	})
-
-	$(".gameSelect").click( function () {
-		gameid = $(this).data("game");
-		SocketGameOut("joingame--id|" + gameid);
-
-	})
-
 
 
 });
