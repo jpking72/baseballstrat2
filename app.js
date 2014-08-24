@@ -50,10 +50,9 @@ function Game(gameid) {
 
 function UserSocket(sock) {
 
-	o = this;
+	var o = this;
 
 	o.sock = sock;
-	o.game = false;
 
 	o.sock.on('clientData', function (data) {
 
@@ -97,7 +96,8 @@ function UserSocket(sock) {
 	o.CreateGame = function (hostdata) {
 
 		console.log('in create game');
-		console.log(typeof o.game);
+		console.log(o);
+		console.log(o.game);
 
 		if (o.game) {
 
@@ -107,13 +107,18 @@ function UserSocket(sock) {
 
 		newgame = new Game(hostdata);
 
-		console.log("game object created");
-		console.log(newgame.gameID);
+		//console.log("game object created");
+		//console.log(newgame.gameID);
 
 		newgame.host = o.sock;
+
+		//console.log("new game");
+		//console.log(newgame);
+
 		o.game = newgame;
 
-		console.log(o.game.gameID);
+		console.log("current object")
+		console.log(o);
 		arrGames.push(newgame);
 
 		o.SendToHostSocket("Hosting game: " + newgame.gameID );
