@@ -52,54 +52,53 @@ function UserSocket(sock) {
 
 	var o = this;
 
-	o.sock = sock;
+	this.sock = sock;
 
-	o.sock.on('clientData', function (data) {
+	this.sock.on('clientData', function (data) {
 
 		o.ParseClientData(data);
 
 	});
 
-	o.sock.on('broadcast', function (data) {
+	this.sock.on('broadcast', function (data) {
 
 		o.BroadcastToGame(data);
 
 	});
 
 
-	o.ParseClientData = function (data) {
+	this.ParseClientData = function (data) {
 
 		var oData = JSON.parse(data);
 
 		console.log(oData);
 
-		o.PerformAction(oData.command, oData.senddata);
+		this.PerformAction(oData.command, oData.senddata);
 
 	}
 
 
-	o.PerformAction = function (command, aGameData) {
+	this.PerformAction = function (command, aGameData) {
 
 		switch (command) {
 
 			case "newgame":
-				o.CreateGame(aGameData.gameid);
+				this.CreateGame(aGameData.gameid);
 				break;
 			case "joingame":
-				o.JoinGame(aGameData.gameid);
+				this.JoinGame(aGameData.gameid);
 				break;
 
 		}
 
 	}
 
-	o.CreateGame = function (hostdata) {
+	this.CreateGame = function (hostdata) {
 
-		console.log('in create game');
-		console.log(o);
-		console.log(o.game);
+		console.log("current object");
+		console.log(this);
 
-		if (o.game) {
+		if (this.game) {
 
 			console.log('game already started');
 			return false;
@@ -107,64 +106,54 @@ function UserSocket(sock) {
 
 		newgame = new Game(hostdata);
 
-		//console.log("game object created");
-		//console.log(newgame.gameID);
+		newgame.host = this.sock;
 
-		newgame.host = o.sock;
+		this.game = newgame;
 
-		//console.log("new game");
-		//console.log(newgame);
-
-		o.game = newgame;
-
-		console.log("current object")
-		console.log(o);
 		arrGames.push(newgame);
 
-		o.SendToHostSocket("Hosting game: " + newgame.gameID );
+		this.SendToHostSocket("Hosting game: " + newgame.gameID );
 
 	} 
 
-	o.JoinGame = function (joindata) {
+	this.JoinGame = function (joindata) {
 
 		gameid = joindata.id;
 
-		console.log(arrGames);
-
-		if ((matchedGame = o.FindGameByID(gameid)) != false) {
+		if ((matchedGame = this.FindGameByID(gameid)) != false) {
 
 			if (matchedGame.complete) {
 
-				o.SendToHostSocket("game already matched")
+				this.SendToHostSocket("game already matched")
 				return false;
 
 			}
 
-			o.game = matchedGame;
+			this.game = matchedGame;
 
-			matchedGame.remote = o.sock;
+			matchedGame.remote = this.sock;
 			mathcedGame.complete = true;
 			matchedGame.active = true;
 			matchedGame.room = "game" + matchedGame.gameID;
 
-			matchedGame.host.join(o.room);
-			matchedGame.remote.join(o.room);
+			matchedGame.host.join(this.room);
+			matchedGame.remote.join(this.room);
 
 			matchedGame.baseball = new Baseball();
 
-			o.BroadCastToGame('Game ready to start');
+			this.BroadCastToGame('Game ready to start');
 			return true;
 
 		} else {
 
-			o.SendToHostSocket("invalid game")
+			this.SendToHostSocket("invalid game")
 			return false;
 
 		}
 
 	}
 
-	o.FindGameByID = function (gameid) {
+	this.FindGameByID = function (gameid) {
 
 		console.log(gameid);
 
@@ -181,25 +170,25 @@ function UserSocket(sock) {
 
 	}
 
-	o.BroadcastToGame = function(data) {
+	this.BroadcastToGame = function(data) {
 
-		if (o.game > 0) {
+		if (this.game > 0) {
 
-			io.sockets.in(o.game.room).emit('news', data); 
+			io.sockets.in(this.game.room).emit('news', data); 
 
 		}
 
 	}
 
-	o.SendToHostSocket = function(data) {
+	this.SendToHostSocket = function(data) {
 
-		o.sock.emit('news', data);
+		this.sock.emit('news', data);
 
 	}
 
-	o.SendToRemoteSocket = function(data) {
+	this.SendToRemoteSocket = function(data) {
 
-		o.game.remote.emit('news', data);
+		this.game.remote.emit('news', data);
 
 	}
 
