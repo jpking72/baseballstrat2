@@ -2,7 +2,18 @@ var app = require('express')()
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server);
 
-var baseball = require('./baseball');
+var mongodb = require('mongodb').MongoClient;
+
+mongodb.connect("mongodb://localhost:27017/userDB", function(err, db) {
+  if(!err) {
+    console.log("We are connected");
+  } else {
+  	console.log(err);
+  }
+
+  var collection = db.collection('users');
+
+});
 
 server.listen(3333);
 
@@ -12,11 +23,26 @@ app.get('/', function (req, res) {
 
 });
 
+app.get('/login', function (req, res) {
+
+    res.sendfile(__dirname + '/login.html');
+
+});
+
 app.get('/js/core.js', function (req, res) {
 
     res.sendfile(__dirname + '/js/core.js');
 
 });
+
+function ParseData(data) {
+
+		var oData = JSON.parse(data);
+
+		console.log('command: ' + oData.command);
+		console.log('user: ' + oData.user);
+		console.log('password: ' + oData.pass)
+}
 
 var connIndex = 0;
 var aConnections = [];
@@ -24,7 +50,16 @@ var max;
 
 io.sockets.on('connection', function (socket) {
 
-	console.log('new connection ' + socket.id)
+	socket.on('clientData', function (data) {
+
+		console.log('received data')
+
+		ParseData(data);
+
+	});
+
+	console.log('new connection')
+	console.log(socket.id);
 
 	aConnections[connIndex] = socket;
 	connIndex++;
@@ -33,7 +68,7 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-var timer = setInterval(SendRandomMessage, 5000);
+//var timer = setInterval(SendRandomMessage, 5000);
 var count = 0;
 
 function SendRandomMessage() {

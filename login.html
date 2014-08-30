@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+	<head lang="en">
+		<meta charset="utf-8">
+		<title>Baseball Strategy II</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/core.js"></script>
+		<script type="text/javascript">
+
+		$(document).ready( function () {
+
+			$("#login").click( function () {
+
+					var loginData = { command: 'login', user: $("#user").val(), pass: $("#password").val() }
+					var data = JSON.stringify(loginData);
+
+					console.log('login clicked')
+
+					SocketGameOut(data);
+
+			});
+
+		});
+
+
+
+		</script>
+	</head>
+	<body>
+		<h1>Baseball Strategy II</h1>
+		<p>User name:<br>
+		<input name="user" id="user" type="text"></p>
+		<p>Password:<br>
+		<input name="password" id="password" type="text"></p>
+		<p><button id="login">Login</button></p>
+	</body>
+
+</html>
