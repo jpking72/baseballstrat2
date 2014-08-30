@@ -8,7 +8,7 @@ $(document).ready( function () {
 
   	});
 
-  	socket.on('gameData', function (data) {
+  	socket.on('message', function (data) {
     	
     	SocketGameIn(data);
 
@@ -34,23 +34,23 @@ $(document).ready( function () {
 
 	function SocketGameIn(data) {
 
-		
+		$("#messages").append("<li>" + data + "</li>");
 	}
 
 	$("#hostGame").click( function () {
 
 		var gamenum = $('input[name=gameSelect]:checked', '#gameForm').val();
 
-		aSendData = { command : "newgame" , senddata : { gameid : gamenum } };
-		senddata = JSON.stringify(aSendData);
+		var aSendData = { command : "newgame" , senddata : { gameid : gamenum } };
+		var senddata = JSON.stringify(aSendData);
 		SocketGameOut(senddata);
 
 	});
 
 	$("#joinGame").click( function () {
 
-		aSendData = { command : "joingame" , senddata : { gameid : gamenum } };
-		senddata = JSON.stringify(aSendData);
+		var aSendData = { command : "joingame" , senddata : { gameid : gamenum } };
+		var senddata = JSON.stringify(aSendData);
 		SocketGameOut(senddata);
 
 	})
