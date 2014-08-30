@@ -2,7 +2,18 @@ var app = require('express')()
     , server = require('http').createServer(app)
     , io = require('socket.io').listen(server);
 
-var baseball = require('./baseball');
+var mongodb = require('mongodb').MongoClient;
+
+mongodb.connect("mongodb://localhost:27017/userDB", function(err, db) {
+  if(!err) {
+    console.log("We are connected");
+  } else {
+  	console.log(err);
+  }
+
+  var collection = db.collection('users');
+
+});
 
 server.listen(3333);
 
@@ -12,191 +23,83 @@ app.get('/', function (req, res) {
 
 });
 
+app.get('/login', function (req, res) {
+
+    res.sendfile(__dirname + '/login.html');
+
+});
+
 app.get('/js/core.js', function (req, res) {
 
     res.sendfile(__dirname + '/js/core.js');
 
 });
 
-gameIDIndex = 0;
-arrSockets = [];
-arrGames = [];
-
-
-console.log("=========================================================================");
-
-io.sockets.on('connection', function (socket) {
-
-	console.log('New connection');
-
-	var localSocket = socket;
-
-	var newsock = new UserSocket(localSocket);
-
-	newsock.game = null;
-	newsock.host = null;
-	newsock.opponent = null;
-	newsock.room = "";
-
-	newsock.SendToHostSocket('Welcome to Baseball Strategy II');
-
-	arrSockets.push(socket);
-
-});
-
-function Game(gameid) {
-
-	this.gameID = gameid;
-	this.joined = false;
-	this.active = false;
-	this.baseball = false;
-
-}
-
-function UserSocket(sock) {
-
-	this.thisSocket = sock;
-
-	this.thisSocket.on('clientData', function (data) {
-
-		console.log("user socket object");
-		console.log(o);
-
-		this.ParseClientData(data);
-
-	});
-
-	this.thisSocket.on('broadcast', function (data) {
-
-		BroadcastToGame(data);
-
-	});
-
-
-	thts.ParseClientData = function (data) {
+function ParseData(data) {
 
 		var oData = JSON.parse(data);
 
-		console.log(oData);
+		console.log('command: ' + oData.command);
+		console.log('user: ' + oData.user);
+		console.log('password: ' + oData.pass)
+}
 
-		o.PerformAction(oData.command, oData.senddata);
+var connIndex = 0;
+var aConnections = [];
+var max;
 
-	}
+io.sockets.on('connection', function (socket) {
 
+	socket.on('clientData', function (data) {
 
-	o.PerformAction = function (command, aGameData) {
+		console.log('received data')
 
-		switch (command) {
+		ParseData(data);
 
-			case "newgame":
-				o.CreateGame(aGameData.gameid);
-				break;
-			case "joingame":
-				o.JoinGame(aGameData.gameid);
-				break;
+	});
 
+	console.log('new connection')
+	console.log(socket.id);
+
+	aConnections[connIndex] = socket;
+	connIndex++;
+
+	max = aConnections.length;
+
+});
+
+//var timer = setInterval(SendRandomMessage, 5000);
+var count = 0;
+
+function SendRandomMessage() {
+
+	if (max >= 3) {
+
+		var connNum = Math.floor(Math.random() * max);
+		console.log("writing to connection: " + connNum);
+
+		var greetings = ['Hello', 'Whats Up?', 'Hey', 'Hola']; 
+		var greetingNum = Math.floor(Math.random() * greetings.length);
+		var greeting = greetings[greetingNum];
+
+		aConnections[connNum].emit('message', greeting);
+
+		count++;
+
+		if (count >= 10) {
+			clearInterval(timer);
 		}
 
-	}
-
-	o.CreateGame = function (hostdata) {
-
-		if (o.game) {
-			console.log('game already started');
-			return false;
-		}
-
-		var newgame = new Game(hostdata);
-
-		newgame.host = o.localSock;
-
-		o.game = newgame;
-
-		arrGames.push(newgame);
-
-		o.SendToHostSocket("Hosting game: " + newgame.gameID );
-
-		console.log("=========");
-
-	} 
-
-	o.JoinGame = function (joindata) {
-
-		gameid = joindata.id;
-
-		if ((matchedGame = this.FindGameByID(gameid)) != false) {
-
-			if (matchedGame.complete) {
-
-				o.SendToHostSocket("game already matched")
-				return false;
-
-			}
-
-			o.game = matchedGame;
-
-			matchedGame.remote = this.localSock;
-			mathcedGame.complete = true;
-			matchedGame.active = true;
-			matchedGame.room = "game" + matchedGame.gameID;
-
-			matchedGame.host.join(this.room);
-			matchedGame.remote.join(this.room);
-
-			matchedGame.baseball = new Baseball();
-
-			o.BroadCastToGame('Game ready to start');
-			return true;
-
-		} else {
-
-			o.SendToHostSocket("invalid game")
-			return false;
-
-		}
-
-	}
-
-	o.FindGameByID = function (gameid) {
-
-		console.log(gameid);
-
-		for (i = 1; i < arrGames.length; i++) {
-
-			if (arrGames[i].gameID == gameid) {
-
-				return arrGames[i];
-
-			}
-		}
-
-		return false;
-
-	}
-
-	o.BroadcastToGame = function(data) {
-
-		if (o.game > 0) {
-
-			io.sockets.in(o.game.room).emit('news', data); 
-
-		}
-
-	}
-
-	o.SendToHostSocket = function(data) {
-
-		o.localSock.emit('news', data);
-
-	}
-
-	o.SendToRemoteSocket = function(data) {
-
-		o.game.remote.emit('news', data);
-
+	} else {
+		console.log('not enough connections')
 	}
 
 }
+
+
+
+
+
 
 
 
