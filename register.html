@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+	<head lang="en">
+		<meta charset="utf-8">
+		<title>Baseball Strategy II</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/core.js"></script>
+		<script type="text/javascript">
+
+		$(document).ready( function () {
+
+			$("#register").click( function () {
+
+					var username = $("#user").val();
+					var useremail = $("#email").val();
+					var password = $("#password").val();
+					var passconf = $("#passconf").val();
+
+					if (password != passconf || email == "" || username == "" || password == "" || passconf == "") {
+
+						alert("invalid data");
+						return false;
+
+					}
+
+					var regData = { command: 'register', user: username, email: useremail, pass: password }
+					var data = JSON.stringify(regData);
+
+					SocketGameOut(data);
+
+			});
+
+		});
+
+
+
+		</script>
+	</head>
+	<body>
+		<h1>Baseball Strategy II</h1>
+		<h3>Registration</h3>
+		<p>User name:<br>
+		<input name="user" id="user" type="text" maxlength="15"></p>
+		<p>Email:<br/>
+		<input name="email" id="email" type="text" maxlength="45"></p>
+		<p>Password:<br>
+		<input name="password" id="password" type="password" maxlength="15"></p>
+		<p>Confirm Password:<br>
+		<input name="passconf" id="passconf" type="password" maxlength="15"></p>
+		<p><button id="register">Register</button></p>
+		<ul id="messages"></ul>
+	</body>
+
+</html>

@@ -33,7 +33,17 @@ function SocketBroadcastIn(data) {
 
 function SocketGameIn(data) {
 
-	$("#messages").append("<li>" + data + "</li>");
+	var oData = JSON.parse(data);
+
+	console.log(oData);
+
+	if (oData.command == 'login' && oData.dat == 'fail') {
+
+		console.log('success')
+
+		$("#messages").append("<li>Invalid Login</li>");
+
+	}
 }
 
 
