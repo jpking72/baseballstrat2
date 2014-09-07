@@ -101,16 +101,16 @@ io.sockets.on('connection', function (socket) {
 
 			if (items.length > 0) {
 
-
+				var message = { command : 'login', dat  : 'success' };
 
 			} else {
 
-				var message = { command : 'login', dat : 'fail'}
-				message = JSON.stringify(message);
-
-				socket.emit('message', message);
+				var message = { command : 'login', dat : 'fail'};
 
 			}
+
+			message = JSON.stringify(message);
+			socket.emit('message', message);
 
 		});
 

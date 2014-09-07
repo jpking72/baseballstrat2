@@ -35,13 +35,17 @@ function SocketGameIn(data) {
 
 	var oData = JSON.parse(data);
 
-	console.log(oData);
+	if (oData.command == 'login') {
 
-	if (oData.command == 'login' && oData.dat == 'fail') {
+		if (oData.dat == 'success') {
 
-		console.log('success')
+			window.location.href = "/";
 
-		$("#messages").append("<li>Invalid Login</li>");
+		} else {
+
+			$("#messages").append("<li>Invalid Login</li>");
+
+		}
 
 	}
 }
